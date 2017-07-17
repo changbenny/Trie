@@ -1,3 +1,4 @@
+const END_SYMBOL = '$'
 class TrieNode {
   constructor(children, val) {
     this.children = children
@@ -22,9 +23,10 @@ class Trie {
   }
 
   insert(string) {
+    let appendedString = `${string}${END_SYMBOL}`
     let current = this.root
-    for (let i = 0; i < string.length; i ++) {
-      let char = string[i]
+    for (let i = 0; i < appendedString.length; i ++) {
+      let char = appendedString[i]
       let node = current.find(char)
       if (node) {
         current = node
@@ -38,13 +40,14 @@ class Trie {
   }
 
   search(string) {
+    let appendedString = `${string}${END_SYMBOL}`
     let current = this.root
-    for (let i = 0; i < string.length; i ++) {
-      let char = string[i]
+    for (let i = 0; i < appendedString.length; i ++) {
+      let char = appendedString[i]
       let node = current.find(char)
       if (node) {
         current = node
-        if (i === string.length - 1) {
+        if (i === appendedString.length - 1) {
           return true
         }
       } else {
@@ -55,15 +58,42 @@ class Trie {
   }
 
   prefix(string) {
+    let appendedString = `${string}`
+    let current = this.root
+    let combination = []
+    for (let i = 0; i < appendedString.length; i ++) {
+      let char = appendedString[i]
+      let node = current.find(char)
+      if (node) {
+        current = node
+      } else {
+        return false
+      }
+    }
+    this.bfsTraversal(current, '', function(accumulate) {
+      combination.push(`${string}${accumulate}`)
+    })
+    return combination
+  }
 
+  bfsTraversal(root, accumulate = '', callback) {
+    for (let i = 0; i < root.children.length; i ++) {
+      let node = root.children[i]
+      if (node.val === END_SYMBOL) {
+        callback(accumulate)
+        continue
+      }
+      this.bfsTraversal(node, `${accumulate}${node.val}`, callback)
+    }
   }
 }
 
 
 let trie = new Trie()
 
-trie.insert('r')
+trie.insert('roo')
 trie.insert('string')
+trie.insert('strstr')
+trie.insert('strp')
 
-
-console.log(trie.search('r'))
+console.log(trie.prefix('str'))
